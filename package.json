@@ -45,5 +45,8 @@
       "last 1 safari version"
     ]
   },
-  "proxy":"https://relay-goerli.flashbots.net/"
+  "proxy": "https://relay-goerli.flashbots.net/",
+  "devDependencies": {
+    "http-proxy-middleware": "^2.0.6"
+  }
 }
