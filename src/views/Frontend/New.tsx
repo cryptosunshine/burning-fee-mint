@@ -19,9 +19,9 @@ import { reduceAddress } from "../../utils/index"
 const { TextArea } = Input;
 const { Option } = Select;
 
-const CHAIN_ID = 5
+const CHAIN_ID = 1
 let provider = new providers.JsonRpcProvider("https://rpc.flashbots.net")
-let FlashbotsRelayProvider =  new providers.InfuraProvider(CHAIN_ID, "4bda20d7583949e08926de4af7ae344e")
+let FlashbotsRelayProvider =  new providers.InfuraProvider(CHAIN_ID, "6335e3979fb14713814f850f052011fc")
 const authSigner = Wallet.createRandom()
 // 私钥，多个，本地存储
 // rpc，列表
@@ -76,12 +76,12 @@ const FrontendNew: React.FC = () => {
     const [privateKeyInput, setPrivateKeyInput] = useState("")
     const [blockNumber, setBlockNumber] = useState<number>(1)
     const [blockNumberType, setBlockNumberType] = useState<number>(0)
-    const RPCFlashBotsInput = "https://relay.flashbots.net";
+    const RPCFlashBotsInput = "/flashbots_cors";
     const [RPCInput, setRPCInput] = useState<string>("https://rpc.flashbots.net")
     const [walletArr, setWalletArr] = useState<[WalletType]>()
     const [walletActive, setWalletActive] = useState<WalletType>()
     const [contractAddress, setContractAddress] = useState<string>("")
-    const [functionType, setFunctionType] = useState<string>("0")
+    const [functionType, setFunctionType] = useState<string>("1")
     const [functionString, setFunctionString] = useState<string>("")
     const paramValueDefault: ParamType[] = []
     const [paramValue, setParamValue] = useState<ParamType[]>(paramValueDefault)
@@ -200,7 +200,7 @@ const FrontendNew: React.FC = () => {
 
         let eip1559Transaction: TransactionRequest
         const block = await FlashbotsRelayProvider.getBlock(blockNumber)
-
+        console.log(block, String(block.baseFeePerGas))
         const maxBaseFeeInFutureBlock = FlashbotsBundleProvider.getMaxBaseFeeInFutureBlock(block.baseFeePerGas || big0, flashBotsSendNum)
         const PRIORITY_FEE = GWEI.mul(BigNumber.from(priorityFee))
         eip1559Transaction = {
@@ -224,6 +224,7 @@ const FrontendNew: React.FC = () => {
 
         // 验证
         const simulation = await flashbotsProvider.simulate(signedTransactions, targetBlock)
+        
         // Using TypeScript discrimination
         if ('error' in simulation) {
             handlelog(`Simulation Error.`)
@@ -234,22 +235,24 @@ const FrontendNew: React.FC = () => {
             console.log(`Simulation Success: ${JSON.stringify(simulation, null, 2)}`)
             handlelog(`Simulation Success.`)
             // handlelog(`Simulation Success #  ${JSON.stringify(simulation, null, 2)}`)
+
+            for (var i = 1; i <= flashBotsSendNum; i++) {
+                let num = blockNumber + i;
+                flashbotsProvider.sendRawBundle(
+                    signedTransactions,
+                    num
+                ).then(async (e: any) => {
+                    console.log(e)
+                    const waitResponse = await e.wait()
+                    console.log(`${num} Wait Response: ${FlashbotsBundleResolution[waitResponse]}`)
+                    handlelog(`${num} Wait Response: ${FlashbotsBundleResolution[waitResponse]}`)
+                });
+                console.log("submitted for block # ", num);
+                handlelog(`submitted for block # ${num}`)
+            }
         }
 
-        for (var i = 1; i <= flashBotsSendNum; i++) {
-            let num = blockNumber + i;
-            flashbotsProvider.sendRawBundle(
-                signedTransactions,
-                num
-            ).then(async (e: any) => {
-                console.log(e)
-                const waitResponse = await e.wait()
-                console.log(`${num} Wait Response: ${FlashbotsBundleResolution[waitResponse]}`)
-                handlelog(`${num} Wait Response: ${FlashbotsBundleResolution[waitResponse]}`)
-            });
-            console.log("submitted for block # ", num);
-            handlelog(`submitted for block # ${num}`)
-        }
+        
 
         // console.log(targetBlock)
         // const bundleSubmission = await flashbotsProvider.sendRawBundle(signedTransactions, targetBlock)
@@ -298,7 +301,7 @@ const FrontendNew: React.FC = () => {
             nonce,
             maxFeePerGas: PRIORITY_FEE.mul(2),
             maxPriorityFeePerGas: PRIORITY_FEE,
-            gasLimit: 1000000,
+            gasLimit: 200000,
             data: data,
             chainId: CHAIN_ID
         }

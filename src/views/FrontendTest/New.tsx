@@ -76,7 +76,7 @@ const FrontendNew: React.FC = () => {
     const [privateKeyInput, setPrivateKeyInput] = useState("")
     const [blockNumber, setBlockNumber] = useState<number>(1)
     const [blockNumberType, setBlockNumberType] = useState<number>(0)
-    const RPCFlashBotsInput = "/CORS";
+    const RPCFlashBotsInput = "/flashbots_test_cors";
     const [RPCInput, setRPCInput] = useState<string>("https://rpc.ankr.com/eth_goerli")
     const [walletArr, setWalletArr] = useState<[WalletType]>()
     const [walletActive, setWalletActive] = useState<WalletType>()
