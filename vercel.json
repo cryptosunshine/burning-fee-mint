@@ -21,7 +21,7 @@
     "rewrites": [
         {
             "source": "/CORS",
-            "destination": "/"
+            "destination": "/api/proxy"
         }
     ]
 }
