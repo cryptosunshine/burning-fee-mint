@@ -20,7 +20,11 @@
     ],
     "rewrites": [
         {
-            "source": "/CORS",
+            "source": "/flashbots_test_cors",
+            "destination": "/api/proxy"
+        },
+        {
+            "source": "/flashbots_cors",
             "destination": "/api/proxy"
         }
     ]
